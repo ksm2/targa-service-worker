@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "lib": ["es2018", "webworker"],
+    "sourceMap": true,
+    "outDir": "./lib",
+    "rootDir": "./sw",
+    "strict": true
+  },
+  "exclude": [
+    "./node_modules"
+  ]
+}
