@@ -1,0 +1,27 @@
+{
+  "name": "targa-service-worker",
+  "version": "1.0.0",
+  "description": "Service Worker to convert Targa Image Format to PNG for browser support",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --mode development",
+    "build": "webpack --mode development",
+    "test": "TS_NODE_FILES=true mocha -r ts-node/register src/**.spec.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
+    "@types/whatwg-streams": "0.0.7",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "ts-loader": "^4.5.0",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.0.3",
+    "webpack": "^4.17.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.7"
+  }
+}
