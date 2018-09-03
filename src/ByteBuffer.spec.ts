@@ -5,7 +5,7 @@ import { ByteBuffer } from './ByteBuffer'
 describe('ByteBuffer', () => {
 
   it('is initialized correctly', () => {
-    const buffer = new ByteBuffer()
+    const buffer = ByteBuffer.allocate()
     expect(buffer.position).to.equal(0)
     expect(buffer.capacity).to.equal(2 ** 16)
     expect(buffer.limit).to.equal(2 ** 16)
@@ -13,7 +13,7 @@ describe('ByteBuffer', () => {
   })
 
   it('can skip bytes', () => {
-    const buffer = new ByteBuffer()
+    const buffer = ByteBuffer.allocate()
     expect(buffer.position).to.equal(0)
     expect(buffer.limit).to.equal(2 ** 16)
 
@@ -27,13 +27,13 @@ describe('ByteBuffer', () => {
   })
 
   it('cannot skip over capacity', () => {
-    const buffer = new ByteBuffer(4)
+    const buffer = ByteBuffer.allocate(4)
     buffer.skip(4)
     expect(() => buffer.skip(4)).to.throw('Reached limit of 4 bytes while skipping 4 bytes')
   })
 
   it('cannot skip over limit', () => {
-    const buffer = new ByteBuffer(8)
+    const buffer = ByteBuffer.allocate(8)
     buffer.skip(4)
     buffer.flip()
     expect(buffer.limit).to.equal(4)
@@ -41,13 +41,13 @@ describe('ByteBuffer', () => {
   })
 
   it('cannot read over capacity', () => {
-    const buffer = new ByteBuffer(4)
+    const buffer = ByteBuffer.allocate(4)
     buffer.readInt32()
     expect(() => buffer.readInt32()).to.throw('Reached limit of 4 bytes while reading 4 bytes')
   })
 
   it('cannot read over limit', () => {
-    const buffer = new ByteBuffer(8)
+    const buffer = ByteBuffer.allocate(8)
     buffer.readInt32()
     buffer.flip()
     expect(buffer.limit).to.equal(4)
@@ -56,13 +56,13 @@ describe('ByteBuffer', () => {
   })
 
   it('cannot write over capacity', () => {
-    const buffer = new ByteBuffer(4)
+    const buffer = ByteBuffer.allocate(4)
     buffer.writeInt32(1337)
     expect(() => buffer.writeInt32(42)).to.throw('Reached limit of 4 bytes while writing 4 bytes')
   })
 
   it('cannot write over limit', () => {
-    const buffer = new ByteBuffer(8)
+    const buffer = ByteBuffer.allocate(8)
     buffer.writeInt32(1337)
     buffer.flip()
     expect(buffer.limit).to.equal(4)
@@ -71,7 +71,7 @@ describe('ByteBuffer', () => {
   })
 
   it('can be written with booleans', async () => {
-    const buffer = new ByteBuffer()
+    const buffer = ByteBuffer.allocate()
 
     buffer.writeBoolean(true)
     expect(buffer.position).to.equal(1)
@@ -100,7 +100,7 @@ describe('ByteBuffer', () => {
   })
 
   it('can be written with bytes', async () => {
-    const buffer = new ByteBuffer()
+    const buffer = ByteBuffer.allocate()
 
     buffer.writeUint8(42)
     expect(buffer.position).to.equal(1)
@@ -129,7 +129,7 @@ describe('ByteBuffer', () => {
   })
 
   it('can be written with words', async () => {
-    const buffer = new ByteBuffer()
+    const buffer = ByteBuffer.allocate()
 
     buffer.writeUint16(42)
     expect(buffer.position).to.equal(2)
@@ -158,7 +158,7 @@ describe('ByteBuffer', () => {
   })
 
   it('can be written with integers', async () => {
-    const buffer = new ByteBuffer()
+    const buffer = ByteBuffer.allocate()
 
     buffer.writeUint32(42)
     expect(buffer.position).to.equal(4)
@@ -187,7 +187,7 @@ describe('ByteBuffer', () => {
   })
 
   it('can be written with fixed-length ASCII strings', async () => {
-    const buffer = new ByteBuffer()
+    const buffer = ByteBuffer.allocate()
 
     buffer.writeFixedLengthASCII('hello world')
     expect(buffer.position).to.equal(11)
@@ -209,7 +209,7 @@ describe('ByteBuffer', () => {
   })
 
   it('can be written with flexible length ASCII strings', async () => {
-    const buffer = new ByteBuffer()
+    const buffer = ByteBuffer.allocate()
 
     buffer.writeASCII('hello world')
     expect(buffer.position).to.equal(15)
@@ -231,7 +231,7 @@ describe('ByteBuffer', () => {
   })
 
   it('can be written with Uint8Arrays', async () => {
-    const buffer = new ByteBuffer()
+    const buffer = ByteBuffer.allocate()
 
     const array = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     buffer.writeUint8Array(array)
@@ -261,11 +261,31 @@ describe('ByteBuffer', () => {
   })
 
   it('can calculate the CRC32', async () => {
-    const buffer = new ByteBuffer()
+    const buffer = ByteBuffer.allocate()
 
     const array = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     buffer.writeUint8Array(array)
     buffer.flip()
     expect(buffer.crc32()).to.equal(622876539)
+  })
+
+  it('can be deflated', () => {
+    const array = new Uint8Array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    const arrayDeflated = new Uint8Array([120, 156, 99, 100, 196, 4, 0, 0, 230, 0, 21])
+    const buffer = ByteBuffer.fromUint8Array(array)
+
+    const deflated = buffer.deflate()
+    expect(deflated.capacity).to.equal(arrayDeflated.length)
+    expect(deflated.limit).to.equal(arrayDeflated.length)
+    expect(deflated.length).to.equal(arrayDeflated.length)
+    expect(deflated.position).to.equal(0)
+    expect(deflated.getUint8Array()).to.eql(arrayDeflated)
+
+    const inflated = deflated.inflate()
+    expect(inflated.capacity).to.equal(array.length)
+    expect(inflated.limit).to.equal(array.length)
+    expect(inflated.length).to.equal(array.length)
+    expect(inflated.position).to.equal(0)
+    expect(inflated.getUint8Array()).to.eql(array)
   })
 })

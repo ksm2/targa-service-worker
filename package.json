@@ -11,9 +11,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "pako": "^1.0.6"
+  },
   "devDependencies": {
     "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.5",
+    "@types/pako": "^1.0.0",
     "@types/whatwg-streams": "0.0.7",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",

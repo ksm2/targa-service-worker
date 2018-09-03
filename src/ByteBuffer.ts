@@ -1,3 +1,4 @@
+import { deflate, DeflateOptions, inflate, InflateOptions } from 'pako'
 import { crc32 } from './crc32'
 
 const BUFFER = Symbol('Buffer')
@@ -16,11 +17,19 @@ export class ByteBuffer {
   private [POSITION]: number
   private [LIMIT]: number
 
-  constructor(capacity = 65_536) {
+  constructor(buffer: ArrayBuffer) {
     this[POSITION] = 0
-    this[LIMIT] = capacity
-    this[BUFFER] = new ArrayBuffer(capacity)
+    this[LIMIT] = buffer.byteLength
+    this[BUFFER] = buffer
     this[VIEW] = new DataView(this[BUFFER])
+  }
+
+  static allocate(capacity = 65_536): ByteBuffer {
+    return new ByteBuffer(new ArrayBuffer(capacity))
+  }
+
+  static fromUint8Array(uint8Array: Uint8Array): ByteBuffer {
+    return new ByteBuffer(uint8Array.buffer as ArrayBuffer)
   }
 
   get capacity(): number {
@@ -51,6 +60,20 @@ export class ByteBuffer {
    */
   crc32(): number {
     return crc32(this.getUint8Array())
+  }
+
+  /**
+   * Deflates the given byte buffer.
+   */
+  deflate(options?: DeflateOptions): ByteBuffer {
+    return ByteBuffer.fromUint8Array(deflate(this.getUint8Array(), options))
+  }
+
+  /**
+   * Inflates the given byte buffer.
+   */
+  inflate(options?: InflateOptions): ByteBuffer {
+    return ByteBuffer.fromUint8Array(inflate(this.getUint8Array(), options))
   }
 
   /**
