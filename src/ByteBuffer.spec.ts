@@ -259,4 +259,13 @@ describe('ByteBuffer', () => {
 
     expect(buffer.getUint8Array()).to.eql(array)
   })
+
+  it('can calculate the CRC32', async () => {
+    const buffer = new ByteBuffer()
+
+    const array = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    buffer.writeUint8Array(array)
+    buffer.flip()
+    expect(buffer.crc32()).to.equal(622876539)
+  })
 })

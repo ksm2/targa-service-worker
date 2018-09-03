@@ -1,3 +1,5 @@
+import { crc32 } from './crc32'
+
 const BUFFER = Symbol('Buffer')
 const VIEW = Symbol('View')
 const POSITION = Symbol('Position')
@@ -42,6 +44,13 @@ export class ByteBuffer {
    */
   getUint8Array(): Uint8Array {
     return new Uint8Array(this[BUFFER], this.position, this.length)
+  }
+
+  /**
+   * Calculates a CRC32 on the byte buffer's data.
+   */
+  crc32(): number {
+    return crc32(this.getUint8Array())
   }
 
   /**
