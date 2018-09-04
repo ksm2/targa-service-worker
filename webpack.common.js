@@ -1,8 +1,7 @@
 const { resolve } = require('path')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 module.exports = {
-  devtool: 'cheap-eval-sourcemap',
-
   entry: {
     'targa-service-worker': resolve(__dirname, 'src', 'sw'),
   },
@@ -17,9 +16,13 @@ module.exports = {
     ],
   },
 
-  devServer: {
-    port: '8080',
-    compress: true,
-    contentBase: [resolve(__dirname, 'assets'), resolve(__dirname, 'dist')],
+  plugins: [
+    new CleanWebpackPlugin(['dist']),
+  ],
+
+  performance: {
+    assetFilter: function (assetFilename) {
+      return assetFilename.match(/\.(js|html|css)$/)
+    },
   },
 }
