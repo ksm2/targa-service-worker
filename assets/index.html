@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Targa to PNG Service Worker Example</title>
+  <script>
+    async function main() {
+      // Find existing Service Worker
+      const registration = await navigator.serviceWorker.getRegistration()
+
+      // Not available? Install and reload
+      if (!registration || !registration.active) {
+        console.info('Installing Service Worker')
+        await navigator.serviceWorker.register('targa-service-worker.js')
+        location.reload()
+        return
+      }
+
+      // Show body
+      document.body.hidden = false
+    }
+
+    main().catch(console.error)
+  </script>
+</head>
+<body hidden>
+  <h1>Targa to PNG Service Worker Example</h1>
+  <img src="cappuccino.tga" width="512" height="342" alt="Cappuccino">
+</body>
+</html>
