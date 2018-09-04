@@ -14,7 +14,7 @@ export class TargaToPNGTransformer implements TransformStreamTransformer<Uint8Ar
    * Is called when the transformation starts.
    */
   async start(controller: TransformStreamDefaultController<Uint8Array>) {
-    this.promise = this.convert(controller)
+    this.promise = this.convert(controller).catch(error => controller.error(error))
   }
 
   /**
