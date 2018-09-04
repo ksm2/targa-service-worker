@@ -111,13 +111,13 @@ export class StreamConsumer {
    * Ensures that enough data is readable. If not, more data is requested from the async iterator.
    */
   private async ensureDataAvailable(bytes: number): Promise<[DataView, Uint8Array]> {
-    if (!this.view || !this.bytes || this.position + bytes > this.view.byteLength) {
+    while (!this.view || !this.bytes || this.position + bytes > this.view.byteLength) {
       // Pull new data from the reader
       const { value, done } = await this.reader.next()
       if (done) {
         throw new Error(`Cannot read ${bytes} bytes of data because stream is closed.`)
       }
-      const pulledData = value as Uint8Array
+      const pulledData = value!
       console.log(`Downloaded ${pulledData.length} bytes of data`)
 
       // Create buffer from remaining data and pulled data

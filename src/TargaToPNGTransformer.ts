@@ -1,6 +1,7 @@
 import { AsyncArrayIterator } from './AsyncArrayIterator'
 import { ByteBuffer } from './ByteBuffer'
 import { PNGProducer } from './PNGProducer'
+import { PNGFilter } from './pngs'
 import { TargaConsumer } from './TargaConsumer'
 
 /**
@@ -8,13 +9,13 @@ import { TargaConsumer } from './TargaConsumer'
  */
 export class TargaToPNGTransformer implements TransformStreamTransformer<Uint8Array, Uint8Array> {
   private chunks = new AsyncArrayIterator<Uint8Array>()
-  private promise?: Promise<void>
+  private doneConverting?: Promise<void>
 
   /**
    * Is called when the transformation starts.
    */
   async start(controller: TransformStreamDefaultController<Uint8Array>) {
-    this.promise = this.convert(controller).catch(error => controller.error(error))
+    this.doneConverting = this.convert(controller).catch(error => controller.error(error))
   }
 
   /**
@@ -29,7 +30,7 @@ export class TargaToPNGTransformer implements TransformStreamTransformer<Uint8Ar
    */
   async flush(controller: TransformStreamDefaultController<Uint8Array>) {
     this.chunks.flush()
-    await this.promise!
+    await this.doneConverting!
   }
 
   /**
@@ -50,10 +51,10 @@ export class TargaToPNGTransformer implements TransformStreamTransformer<Uint8Ar
     const now = performance.now()
     const byteBuffer = ByteBuffer.allocate(height * (1 + width * 3))
     for (let row = 0; row < height; row += 1) {
-      // Set row's filter: "0" means "no filter"
-      byteBuffer.writeUint8(0)
+      // Set row's filter (we only use "none" = "0")
+      byteBuffer.writeUint8(PNGFilter.NONE)
 
-      //
+      // Get BGR bytes of the row and convert them to RGB
       const colorTriples = await consumer.readUint8Array(width * 3)
       this.convertBGRToRGB(colorTriples)
       byteBuffer.writeUint8Array(colorTriples)

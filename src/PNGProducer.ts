@@ -33,7 +33,7 @@ export class PNGProducer extends StreamProducer {
     } = header
 
     // Write properties to a byte buffer
-    const data = ByteBuffer.allocate(13 + 8)
+    const data = ByteBuffer.allocate(13)
       .writeUint32(width)
       .writeUint32(height)
       .writeUint8(bitDepth)

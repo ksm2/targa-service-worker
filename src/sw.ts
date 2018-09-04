@@ -23,7 +23,7 @@ async function handleTargaRequest(request: Request): Promise<Response> {
   const response = await fetch(request)
 
   // Get Readable Stream of it
-  const rs = response.body!
+  const rs = response.body
 
   // Transform Targa image data to PNG via a transform stream
   const transformer = new TransformStream(new TargaToPNGTransformer())
