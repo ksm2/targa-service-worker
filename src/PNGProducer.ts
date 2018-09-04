@@ -51,9 +51,7 @@ export class PNGProducer extends StreamProducer {
   /**
    * Write the RGB + filter pixel rows to the PNG stream.
    */
-  writePNGData(imageData: ByteBuffer) {
-    // Apply DEFLATE on image data and write it to the stream
-    const data = imageData.deflate()
+  writePNGData(data: ByteBuffer) {
     this.writePNGChunk({ data, type: 'IDAT' })
   }
 
