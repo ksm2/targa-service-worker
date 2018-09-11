@@ -9,7 +9,7 @@ import { TargaConsumer } from './TargaConsumer'
  * The TargaToPNGTransformer is a streams transformer which receives Targa data and outputs PNG data.
  */
 export class TargaToPNGTransformer implements TransformStreamTransformer<Uint8Array, Uint8Array> {
-  private chunks = new AsyncArrayIterator<Uint8Array>()
+  private chunkQueue = new AsyncArrayIterator<Uint8Array>()
   private doneConverting?: Promise<void>
 
   /**
@@ -23,14 +23,14 @@ export class TargaToPNGTransformer implements TransformStreamTransformer<Uint8Ar
    * Is called when a new chunk of data is coming in.
    */
   async transform(chunk: Uint8Array, controller: TransformStreamDefaultController<Uint8Array>) {
-    this.chunks.enqueue(chunk)
+    this.chunkQueue.enqueue(chunk)
   }
 
   /**
    * Is called when the final data came in. After `flush` resolves, `controller` is not available anymore!
    */
   async flush(controller: TransformStreamDefaultController<Uint8Array>) {
-    this.chunks.flush()
+    this.chunkQueue.flush()
     await this.doneConverting!
   }
 
@@ -38,7 +38,7 @@ export class TargaToPNGTransformer implements TransformStreamTransformer<Uint8Ar
    * The asynchronous conversion processor.
    */
   private async convert(controller: TransformStreamDefaultController<Uint8Array>) {
-    const consumer = new TargaConsumer(this.chunks)
+    const consumer = new TargaConsumer(this.chunkQueue)
     const producer = new PNGProducer(controller)
 
     // Write PNG magic
